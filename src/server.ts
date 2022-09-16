@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import { Router, Request, Response } from 'express';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
 (async () => {
@@ -30,7 +31,30 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   /**************************************************************************** */
 
   //! END @TODO1
-  
+  app.get('/filteredimage', async (req: Request, res: Response)=>{
+    const urlimage = req.query.image_url.toString();
+    //On se rassure que l'utilisateur a entré une URL
+    if(!urlimage){
+      res.status(400).send('Une Url est requise');
+    }
+
+ //si l'utilisateur une url mal formée, on renvoit le code 400 avec le message y afférent
+ //if ( image_url.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g) !=null ) {
+ // return res.status(400)
+ //           .send(`Inscrivez une URL valide`);
+ // }
+
+    const _imagefiltered = await filterImageFromURL(urlimage);
+
+    res.status(200).sendFile(_imagefiltered, () =>{
+      deleteLocalFiles([_imagefiltered]);
+    });
+    
+
+  });
+
+
+
   // Root Endpoint
   // Displays a simple message to the user
   app.get( "/", async ( req, res ) => {
