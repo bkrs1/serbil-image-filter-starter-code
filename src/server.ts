@@ -33,15 +33,23 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //! END @TODO1
   app.get('/filteredimage', async (req: Request, res: Response)=>{
     const image_url = req.query.image_url.toString();
+    //On se rassure que l'utilisateur a entré une URL
     if(!image_url){
       res.status(400).send('Une Url est requise');
-
-      const filtered_image = await filterImageFromURL(image_url);
-
-      res.status(200).sendFile(filtered_image, () =>{
-        deleteLocalFiles([filtered_image]);
-      })
     }
+
+ //si l'utilisateur une url mal formée, on renvoit le code 400 avec le message y afférent
+ if ( image_url.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g) !=null ) {
+  return res.status(400)
+            .send(`Inscrivez une URL valide`);
+  }
+
+    const filtered_image = await filterImageFromURL(image_url);
+
+    res.status(200).sendFile(filtered_image, () =>{
+      deleteLocalFiles([filtered_image]);
+    });
+    
 
   });
 
